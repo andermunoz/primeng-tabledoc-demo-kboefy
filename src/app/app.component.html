@@ -1,78 +1,95 @@
-<p-dropdown [options]="['Waves', '5G']" [(ngModel)]="model" (onChange)="modelChange($event)" placeholder="Please select"></p-dropdown>
-
-<p-table [value]="routingData" styleClass="p-datatable-customers">
+<p-table [value]="route" [columns]="cols" styleClass="p-datatable-customers p-datatable-gridlines">
     <ng-template pTemplate="caption">
         <div class="table-header">
             Routing data
         </div>
     </ng-template>
-    <ng-template pTemplate="header">
+
+    <ng-template pTemplate="header" let-columns>
         <tr>
-            <th style="width: 3rem"></th>
-            <th  style="width: 6em">Role</th>
-            <th  style="width: 6em">Location</th>
-            <th  style="width: 6em">Device name</th>
-            <th  style="width: 6em">Ports reserved</th>
-            <th style="width: 8rem"></th>
+            <ng-container *ngFor="let in of counterToMaxNumberOfPaths() ">
+                <th colspan = "5">
+                    {{in == 0 && 'Main' || 'Protection'}}
+                </th>       
+            </ng-container>
         </tr>
-    </ng-template> 
-    <ng-template pTemplate="body" let-routeComponent let-index="rowIndex">
-        <tr class="p-selectable-row" style="background-color: #F0F0FF" *ngIf="routeComponent.type == 0">
-            <td rowspan="2">
-                <p-tableCheckbox></p-tableCheckbox>
-            </td>
+        <tr>
+            <ng-container *ngFor="let in of counterToMaxNumberOfPaths() ">
+                <th *ngFor="let col of columns">
+                    {{col.header}}
+                </th>
+            </ng-container>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-routeComponent let-columns="columns" let-index="rowIndex">
+        <!--One row per route component (device or connection)-->
+        <tr class="p-selectable-row" >
+            <!--Iterate through main, protection routes-->
+            <ng-container *ngFor="let in of counterToMaxNumberOfPaths(); let i = index">
+                <!--Container for devices-->
+                <ng-container *ngIf="routeComponent[i] != null && routeComponent[i].type == 0" >
+                    <!--Once cell per field defined in columns object-->
+                    <td pEditableColumn *ngFor="let col of columns; let j = index" [attr.rowspan]="col.rowspan" style="background-color: #F0F0FF">
+                        <span class="p-column-title">{{col.header}}</span>
+                        <span *ngIf="col.field != 'buttons' && col.field != 'reservedPorts' && !col.input">
+                            {{routeComponent[i][col.field]}}
+                        </span>
+                        <span *ngIf="col.field == 'reservedPorts'">
+                            {{routeComponent[i][col.field][0]}}
+                        </span>
+                        <span *ngIf="col.field == 'buttons'">
+                            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded" (click)="deleteComponent(index, i)"></button>
+                            <button pButton type="button" class="p-button-rounded" icon="pi pi-angle-down" (click)="addComponent(index, i)"></button>
+                        </span>
+                        <span *ngIf="col.input">
+                            <p-cellEditor>
+                                <ng-template pTemplate="input">
+                                    <p-dropdown *ngIf="col.inputType == 'DropDown'" [options]="col.options" [(ngModel)]="routeComponent[i][col.field]" placeholder="Please select"></p-dropdown>
+                                    <input pInputText *ngIf="col.inputType == 'Text'" type="text" [(ngModel)]="routeComponent[i].location" required>
+                                </ng-template>
+                                <ng-template pTemplate="output">
+                                    {{routeComponent[i][col.field]}}
+                                </ng-template>
+                            </p-cellEditor>
+                        </span>
+                    </td>
+                </ng-container>
+                <!--Container for connections-->
+                <ng-container *ngIf="routeComponent[i] != null && routeComponent[i].type == 1">
+                    <td pEditableColumn colspan="6" style="text-align: center;">
+                        <span class="p-column-title">Name</span>
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-dropdown [options]="['Physical connection', 'CRAN']" [(ngModel)]="routeComponent[i].name" [style]="{'width':'100%'}" placeholder="Please select"></p-dropdown>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{routeComponent[i].name}}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                </ng-container>
+            </ng-container>
+        </tr> 
+
+        <!--Additional row to make space for ports-->
+        <tr class="p-selectable-row" style="background-color: #F0F0FF">
+            <ng-container *ngFor="let in of counterToMaxNumberOfPaths(); let i = index">
+                <ng-container *ngIf="routeComponent[i] != null && routeComponent[i].type == 0">
+                    <td>
+                        <span class="p-column-title">Ports reserved</span>
+                        {{routeComponent[i].reservedPorts[1]}}
+                    </td>
+                </ng-container>  
+            </ng-container>
+        </tr> 
 
 
-            <td pEditableColumn rowspan="2">
-                <span class="p-column-title">Role</span>
-                <p-cellEditor>
-                    <ng-template pTemplate="input">
-                        <p-dropdown [options]="roleOptions" [(ngModel)]="routeComponent.role" placeholder="Please select"></p-dropdown>
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                        {{routeComponent.role}}
-                    </ng-template>
-                </p-cellEditor>
-            </td>
-            
-            <td pEditableColumn rowspan="2">
-                <span class="p-column-title">Location</span>
-                <p-cellEditor>
-                    <ng-template pTemplate="input">
-                        <input pInputText type="text" [(ngModel)]="routeComponent.location" required>
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                        {{routeComponent.location}}
-                    </ng-template>
-                </p-cellEditor>
-            </td>
 
-            <td rowspan="2">
-                <span class="p-column-title">Device name</span>
-                {{routeComponent.deviceName}}
-            </td>
-            <td>
-                <span class="p-column-title">Ports reserved</span>
-                {{routeComponent.reservedPorts[0]}}
-            </td>
-            <td style="text-align: center"  rowspan="2">
-                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded" (click)="deleteComponent(index)"></button>
-                <button pButton type="button" class="p-button-rounded" icon="pi pi-angle-down" (click)="addComponent(index)"></button>
-            </td>
-        </tr> 
-        <tr class="p-selectable-row" style="background-color: #F0F0FF" *ngIf="routeComponent.type == 0">
-            <td>
-                <span class="p-column-title">Ports reserved</span>
-                {{routeComponent.reservedPorts[1]}}
-            </td>
-        </tr> 
-        <tr class="p-selectable-row" *ngIf="routeComponent.type == 1">
-            <td colspan="6"  style="text-align: center;">
-                <span class="p-column-title">Ports reserved</span>
-                {{routeComponent.name}}
-            </td>
-        </tr> 
+
     </ng-template> 
 </p-table>
+
+
 
 

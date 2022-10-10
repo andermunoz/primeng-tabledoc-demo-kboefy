@@ -18,12 +18,16 @@ import {ToastModule} from 'primeng/toast';
 import {InputTextModule} from 'primeng/inputtext';
 import {ProgressBarModule} from 'primeng/progressbar';
 import {DropdownModule} from 'primeng/dropdown';
+import { DividerModule } from 'primeng/divider';
+import { SplitterModule } from 'primeng/splitter';
 
 @NgModule({
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     TableModule,
+    DividerModule,
+    SplitterModule,
     CalendarModule,
 		SliderModule,
 		DialogModule,

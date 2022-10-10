@@ -32,7 +32,3 @@ export interface RouteComponent {
     reservedPorts?: string[];
 }
 
-export interface RouteHop {
-    type: RouteComponentType;
-    components: RouteComponent[];
-}
