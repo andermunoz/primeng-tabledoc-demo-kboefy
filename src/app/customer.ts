@@ -18,6 +18,11 @@ export interface Customer {
     representative?: Representative;
 }
 
+export interface LocationBPI {
+    name?: string;
+    id?: number;
+}
+
 export enum RouteComponentType {
     device,
     connection
@@ -27,7 +32,7 @@ export interface RouteComponent {
     type: RouteComponentType;
     name?: string;
     role?: string;
-    location?: string;
+    location?: LocationBPI;
     deviceName?: string;
     reservedPorts?: string[];
 }

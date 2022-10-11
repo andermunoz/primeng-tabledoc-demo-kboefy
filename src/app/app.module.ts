@@ -20,6 +20,7 @@ import {ProgressBarModule} from 'primeng/progressbar';
 import {DropdownModule} from 'primeng/dropdown';
 import { DividerModule } from 'primeng/divider';
 import { SplitterModule } from 'primeng/splitter';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 @NgModule({
   imports: [
@@ -27,6 +28,7 @@ import { SplitterModule } from 'primeng/splitter';
     BrowserAnimationsModule,
     TableModule,
     DividerModule,
+    AutoCompleteModule,
     SplitterModule,
     CalendarModule,
 		SliderModule,
