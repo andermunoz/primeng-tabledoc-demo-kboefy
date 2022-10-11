@@ -42,6 +42,7 @@ export enum RouteComponentType {
 
 export interface RouteComponent {
     type: RouteComponentType;
+    sharedWithOtherRoutes?: boolean;
     name?: string;
     role?: string;
     location?: LocationBPI;

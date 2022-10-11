@@ -42,20 +42,27 @@
             <!--Iterate through main, protection routes-->
             <ng-container *ngFor="let in of [].constructor(route.length); let i = index" >
                 <!--Container for devices-->
-                <ng-container *ngIf="route[i][j] != null && route[i][j].type == 0" >
+                <ng-container *ngIf="route[i][j] != null && route[i][j].type == 0 && (i == 0 || !route[i][j].sharedWithOtherRoutes)" >
                     <!--One cell per field defined in columns object-->
-                    <td pEditableColumn *ngFor="let col of columns" [attr.rowspan]="col.rowspan" style="background-color: #F0F0FF">
+                    <td pEditableColumn *ngFor="let col of columns" [attr.colspan]="route[i][j].sharedWithOtherRoutes ? (i ==0 ? 2 : 0) : 1" [attr.rowspan]="1" style="background-color: #F0F0FF">
                         <span class="p-column-title">{{col.header}}</span>
                         <span *ngIf="col.field != 'buttons' && col.field != 'reservedPorts' && !col.input">
                             {{route[i][j][col.field]}}
                         </span>
                         <!--Subtable for reserved ports (one row for client port and another for line port)-->
                         <span *ngIf="col.field == 'reservedPorts'">
-                            <p-table [value]="route[i][j][col.field]" styleClass="p-datatable-customers p-datatable-gridlines">
+                            <p-table [value]="route[i][j][col.field]">
                                 <ng-template pTemplate="body" let-index="rowIndex">
                                     <tr>
                                         <td pEditableColumn style="background-color: #F0F0FF">
-                                            {{route[i][j][col.field][index]}}
+                                            <p-cellEditor>
+                                                <ng-template pTemplate="input">
+                                                    <p-dropdown [options]="route[i][j].device != null ? route[i][j].device.ports : []" optionLabel="name" [(ngModel)]="route[i][j][col.field][index]" placeholder="Please select"></p-dropdown>
+                                                </ng-template>
+                                                <ng-template pTemplate="output">
+                                                    {{route[i][j][col.field][index].name}}
+                                                </ng-template>
+                                            </p-cellEditor>
                                         </td>
                                     </tr>
                                 </ng-template>
@@ -64,6 +71,7 @@
                         <span *ngIf="col.field == 'buttons'">
                             <button pButton pRipple icon="pi pi-trash" pTooltip="Delete component"  class="p-button-rounded" (click)="deleteComponent(i, j)"></button>
                             <button pButton type="button" pTooltip="Add component" class="p-button-rounded" icon="pi pi-angle-down" (click)="addComponent(i, j)"></button>
+                            <button pButton type="button" pTooltip="Add component" class="p-button-rounded" icon="pi pi-angle-left" (click)="makeComponentSharedWithRoute(i, j)"></button>
                         </span>
                         <span *ngIf="col.input">
                             <p-cellEditor>
@@ -71,7 +79,9 @@
                                     <p-dropdown *ngIf="col.inputType == 'DropDown'" [options]="col.options" [(ngModel)]="route[i][j][col.field]" placeholder="Please select"></p-dropdown>
                                     <input pInputText *ngIf="col.inputType == 'Text'" type="text" [(ngModel)]="route[i][j][col.field]" required>
                                     <p-autoComplete *ngIf="col.inputType == 'Autocomplete' && col.field == 'location'"  [(ngModel)]="route[i][j][col.field]" [showEmptyMessage]="true" [suggestions]="filteredLocations" (completeMethod)="filterLocation($event)" field="name" [minLength]="1"></p-autoComplete>
-                                    <p-autoComplete *ngIf="col.inputType == 'Autocomplete' && col.field == 'device'"  [(ngModel)]="route[i][j][col.field]" [showEmptyMessage]="true" [suggestions]="filteredDevices" (completeMethod)="filterDevice($event, i, j)" field="name" [minLength]="1"></p-autoComplete>
+                                    
+                                    <p-dropdown *ngIf="col.inputType == 'Autocomplete' && col.field == 'device'"  [options]="route[i][j].location.devices" [(ngModel)]="route[i][j][col.field]" placeholder="Select a device" optionLabel="name" [showClear]="true"></p-dropdown>
+                                    
                                 </ng-template>
                                 <ng-template pTemplate="output">
                                     <ng-container *ngIf="col.inputType == 'Autocomplete' && route[i][j][col.field] != null">
@@ -86,8 +96,8 @@
                     </td>
                 </ng-container>
                 <!--Container for connections-->
-                <ng-container *ngIf="route[i][j] != null && route[i][j].type == 1">
-                    <td pEditableColumn colspan="5" style="text-align: center;">
+                <ng-container *ngIf="route[i][j] != null && route[i][j].type == 1 && (i == 0 || !route[i][j].sharedWithOtherRoutes)">
+                    <td pEditableColumn [attr.colspan]="route[i][j].sharedWithOtherRoutes ? (i ==0 ? 10 : 0) : 5" style="text-align: center;">
                         <span class="p-column-title">Connection type</span>
                         <p-cellEditor>
                             <ng-template pTemplate="input">

@@ -57,6 +57,7 @@ export class AppComponent {
             [
                 {
                     type: RouteComponentType.device, 
+                    sharedWithOtherRoutes: true,
                     role: "NTE-A", 
                     location: {
                         "id": 1000,
@@ -67,6 +68,7 @@ export class AppComponent {
                 },
                 {
                     type: RouteComponentType.connection, 
+                    sharedWithOtherRoutes: true,
                     name: "Physical Connection"
                 },
                 {
@@ -111,6 +113,7 @@ export class AppComponent {
             [
                 {
                     type: RouteComponentType.device, 
+                    sharedWithOtherRoutes: true,
                     role: "NTE-A", 
                     location: {
                         "id": 1000,
@@ -121,6 +124,7 @@ export class AppComponent {
                 },
                 {
                     type: RouteComponentType.connection, 
+                    sharedWithOtherRoutes: true,
                     name: "Physical Connection"
                 },
                 {
@@ -206,11 +210,11 @@ export class AppComponent {
     filterDevice(event, i, j) {
         debugger;
 
-        /*this.filteredDevices = 
+        this.filteredDevices = 
             this
             .locations
             .filter(l => l.name == this.route[i][j].location.name)
-            .map(l => l.devices);*/
+            .map(l => l.devices)[0];
         debugger;
 
     }
@@ -262,6 +266,10 @@ export class AppComponent {
 
     deleteRoute(i: number) {
         this.route.splice(i, 1);
+    }
+
+    makeComponentSharedWithRoute(i: number, j: number) {
+        this.route[i][j].sharedWithOtherRoutes = true;
     }
 
 
