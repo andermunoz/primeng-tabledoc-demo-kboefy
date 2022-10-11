@@ -10,14 +10,16 @@
             <ng-container *ngFor="let in of [].constructor(route.length); let i = index">
                 <th colspan = "5" style="text-align: center;">
                     {{i == 0 && 'Main' || 'Protection'}}
-                    <button *ngIf="route.length == 1" pButton type="button" pTooltip="Add route" class="p-button-rounded" icon="pi pi-angle-right" (click)="addRoute()"></button>
                 </th>       
             </ng-container>
         </tr>
         <tr>
-            <ng-container *ngFor="let in of [].constructor(route.length)">
-                <th *ngFor="let col of columns">
+            <ng-container *ngFor="let in of [].constructor(route.length); let i = index">
+                <th *ngFor="let col of columns; let j = index">
                     {{col.header}}
+                    <button *ngIf="route.length == 1 && j == columns.length - 1" pButton type="button" pTooltip="Add route" class="p-button-rounded" icon="pi pi-angle-right" (click)="addRoute()"></button>
+                    <button *ngIf="j == columns.length - 1" pButton pRipple icon="pi pi-trash" pTooltip="Delete route"  class="p-button-rounded" (click)="deleteRoute(i)"></button>
+                    <button *ngIf="route[i].length == 0 && j == columns.length - 1" pButton type="button" pTooltip="Add device" class="p-button-rounded" icon="pi pi-angle-right" (click)="addDevice(i, 0)"></button>
                 </th>
             </ng-container>
         </tr>
@@ -33,7 +35,8 @@
         <button pButton type="button" class="p-button-rounded" icon="pi pi-angle-down" pTooltip="Add device" (click)="addDevice(0, 0)"></button>
     </ng-template>
 
-    <ng-template pTemplate="body" let-path let-columns="columns">
+    <ng-template pTemplate="body" let-path let-columns="columns" *ngIf="maxNumberOfComponentsInPath() > 0">
+    <ng-container *ngIf="maxNumberOfComponentsInPath() > 0">
         <!--Number of rows is the max number of components in a path-->
         <tr class="p-selectable-row" *ngFor="let in of [].constructor(maxNumberOfComponentsInPath()); let j = index" >
             <!--Iterate through main, protection routes-->
@@ -67,7 +70,8 @@
                                 <ng-template pTemplate="input">
                                     <p-dropdown *ngIf="col.inputType == 'DropDown'" [options]="col.options" [(ngModel)]="route[i][j][col.field]" placeholder="Please select"></p-dropdown>
                                     <input pInputText *ngIf="col.inputType == 'Text'" type="text" [(ngModel)]="route[i][j][col.field]" required>
-                                    <p-autoComplete *ngIf="col.inputType == 'Autocomplete'"  [(ngModel)]="route[i][j][col.field]" [showEmptyMessage]="true" [suggestions]="filteredLocations" (completeMethod)="filterLocation($event)" field="name" [minLength]="1"></p-autoComplete>
+                                    <p-autoComplete *ngIf="col.inputType == 'Autocomplete' && col.field == 'location'"  [(ngModel)]="route[i][j][col.field]" [showEmptyMessage]="true" [suggestions]="filteredLocations" (completeMethod)="filterLocation($event)" field="name" [minLength]="1"></p-autoComplete>
+                                    <p-autoComplete *ngIf="col.inputType == 'Autocomplete' && col.field == 'device'"  [(ngModel)]="route[i][j][col.field]" [showEmptyMessage]="true" [suggestions]="filteredDevices" (completeMethod)="filterDevice($event, i, j)" field="name" [minLength]="1"></p-autoComplete>
                                 </ng-template>
                                 <ng-template pTemplate="output">
                                     <ng-container *ngIf="col.inputType == 'Autocomplete' && route[i][j][col.field] != null">
@@ -102,6 +106,7 @@
                 </ng-container>
             </ng-container>    
         </tr>
+    </ng-container>
     </ng-template>
 
 </p-table>

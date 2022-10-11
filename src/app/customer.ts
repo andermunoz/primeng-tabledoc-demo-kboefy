@@ -21,6 +21,18 @@ export interface Customer {
 export interface LocationBPI {
     name?: string;
     id?: number;
+    devices?: Device[];
+}
+
+export interface Device {
+    name?: string;
+    id?: number;
+    ports?: Port[];
+}
+
+export interface Port {
+    name?: string;
+    id?: number;
 }
 
 export enum RouteComponentType {

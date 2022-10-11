@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Customer, LocationBPI, Representative, RouteComponent, RouteComponentType } from './customer';
+import { Customer, Device, LocationBPI, Representative, RouteComponent, RouteComponentType } from './customer';
 import { CustomerService } from './customerservice';
 import { Table } from 'primeng/table';
 import { PrimeNGConfig } from 'primeng/api';
@@ -18,7 +18,8 @@ export class AppComponent {
     roleOptions: string[] = ["NTE-A", "NTE-B", "WIS"];
 
     locations: LocationBPI[] = [];
-    filteredLocations: any[];
+    filteredLocations: LocationBPI[];
+    filteredDevices: Device[];
 
     cols: any[];
 
@@ -46,7 +47,7 @@ export class AppComponent {
         this.cols = [
             { field: 'role', header: 'Role', rowspan: '1', input: true, inputType: 'DropDown', options: ['NTE-A', 'NTE-B', 'WIS']},
             { field: 'location', header: 'Location', rowspan: '1', input: true, inputType: 'Autocomplete'},
-            { field: 'deviceName', header: 'Device name', rowspan: '1'},
+            { field: 'device', header: 'Device name', rowspan: '1', input: true, inputType: 'Autocomplete'},
             { field: 'reservedPorts', header: 'Reserved ports', rowspan: '1'},
             { field: 'buttons', header: '', rowspan: '1'}
         ];
@@ -177,10 +178,11 @@ export class AppComponent {
     }
 
     maxNumberOfComponentsInPath() : number {
+        Math.max(...(this.route.map(el => el.length)));
         return Math.max(...(this.route.map(el => el.length)));
     }
 
-    filterLocation(event) {
+    filterLocation(event: { query: any; }) {
         let filtered : any[] = [];
         let query = event.query;
 
@@ -201,10 +203,21 @@ export class AppComponent {
         this.filteredLocations = filtered;
     }
 
+    filterDevice(event, i, j) {
+        debugger;
+
+        /*this.filteredDevices = 
+            this
+            .locations
+            .filter(l => l.name == this.route[i][j].location.name)
+            .map(l => l.devices);*/
+        debugger;
+
+    }
+
     
 
-    addComponent(i: number, j: number, onlyDevice?: boolean) {
-        debugger;
+    addComponent(i: number, j: number) {
         this.route[i].splice(
             j + 1, 
             0, 
@@ -222,7 +235,7 @@ export class AppComponent {
         );
     }
 
-    addDevice(i: number, j: number, onlyDevice?: boolean) {
+    addDevice(i: number, j: number) {
         this.route[i].splice(
             j + 1, 
             0, 
@@ -241,13 +254,14 @@ export class AppComponent {
             j > 0 ? j - 1 : j, 
             2
         );
-        if (this.route[i].length == 0) {
-            this.route.splice(i, 1);
-        }
     }
 
     addRoute() {
         this.route.push([]);
+    }
+
+    deleteRoute(i: number) {
+        this.route.splice(i, 1);
     }
 
 
